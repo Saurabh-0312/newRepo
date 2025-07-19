@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nishu's AyurJnana Sahayak - BAMS Study Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+            position: relative;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        .tab-button:hover {
+            color: #5eead4; /* teal-300 */
+        }
+        .tab-button.active {
+            color: #a78bfa; /* violet-400 */
+            font-weight: 700;
+        }
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, #2dd4bf, #a78bfa);
+            box-shadow: 0 0 15px rgba(45, 212, 191, 0.5);
+        }
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(71, 85, 105, 0.5);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.7);
+        }
+        .glass-container {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .aiapget-topic-card {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .aiapget-topic-card:hover {
+            transform: translateY(-5px);
+            background-color: rgba(255, 255, 255, 0.07);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(167, 139, 250, 0.5);
+        }
+        .resource-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            border-radius: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            color: #cbd5e1; /* slate-300 */
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .resource-link:hover {
+            background: linear-gradient(to right, rgba(20, 184, 166, 0.15), rgba(139, 92, 246, 0.15));
+            border-color: #5eead4;
+            color: #ffffff;
+        }
+        .resource-link svg {
+            flex-shrink: 0;
+            color: #94a3b8; /* slate-400 */
+            transition: color 0.3s ease;
+        }
+        .resource-link:hover svg {
+            color: #5eead4;
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #2dd4bf, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 16px rgba(45, 212, 191, 0.3), 0 2px 16px rgba(167, 139, 250, 0.3);
+        }
+        .interactive-btn {
+            background: linear-gradient(to right, #14b8a6, #8b5cf6);
+            transition: all 0.3s ease;
+        }
+        .interactive-btn:hover {
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+            transform: scale(1.02);
+        }
+         .lang-btn-shloka.active {
+            background: linear-gradient(to right, #14b8a6, #8b5cf6);
+            color: white;
+            box-shadow: 0 0 15px rgba(20, 184, 166, 0.4);
+        }
+        .mcq-option {
+            border: 1px solid #475569;
+            transition: all 0.2s ease-in-out;
+        }
+        .mcq-option:hover {
+            background-color: #334155;
+            border-color: #5eead4;
+        }
+        .mcq-option.correct {
+            background-color: #10b981;
+            border-color: #34d399;
+            color: white;
+        }
+        .mcq-option.incorrect {
+            background-color: #ef4444;
+            border-color: #f87171;
+            color: white;
+        }
+        .mcq-option.selected {
+            background-color: #2563eb; /* blue-600 */
+            border-color: #60a5fa;    /* blue-400 */
+            color: #fff;
+            box-shadow: 0 0 0 2px #60a5fa;
+        }
+        .mcq-option.incorrect.selected {
+            background-color: #ef4444; /* red-500 */
+            border-color: #60a5fa;    /* blue-400 */
+            color: #fff;
+            box-shadow: 0 0 0 2px #60a5fa;
+        }
+        .mcq-option.selected {
+            border: 2px solid #fff !important;
+            position: relative;
+        }
+        .mcq-option.selected::before {
+            content: '\2713'; /* checkmark */
+            color: #fff;
+            font-size: 1.2em;
+            position: absolute;
+            left: -1.5em;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .screen-transition {
+            transition: opacity 0.4s, filter 0.4s;
+            opacity: 1;
+            filter: blur(0);
+        }
+        .screen-fade-out {
+            opacity: 0;
+            filter: blur(8px);
+        }
+        .screen-fade-in {
+            opacity: 1;
+            filter: blur(0);
+        }
+        .screen-pre-fade-in {
+            opacity: 0;
+            filter: blur(8px);
+        }
+        .ai-message {
+            background-color: #334155; /* or bg-slate-700 */
+            color: #fff !important;    /* Vibrant white */
+            text-shadow: 0 2px 12px rgba(255,255,255,0.12);
+        }
+    </style>
+</head>
+<body class="bg-black text-slate-200">
+
+    <div id="app" class="min-h-screen flex flex-col items-center p-4">
+        
+        <header class="w-full max-w-5xl mx-auto text-center mb-8 relative">
+            <h1 class="text-4xl md:text-5xl font-extrabold gradient-text">निशु की आयुर्ज्ञान सहायक</h1>
+            <p class="text-lg text-slate-400 mt-2">Nishu's Personal AI-Powered Study Assistant</p>
+        </header>
+
+        <main class="w-full max-w-5xl mx-auto glass-container rounded-2xl shadow-2xl shadow-black/50 p-6 md:p-8">
+            <!-- Tabs -->
+            <div class="border-b border-slate-700 mb-6">
+                <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                    <button id="tab-shloka" onclick="switchTab('shloka')" class="tab-button active">Shloka Converter</button>
+                    <button id="tab-doubt" onclick="switchTab('doubt')" class="tab-button">Doubt Solver</button>
+                    <button id="tab-aiapget" onclick="switchTab('aiapget')" class="tab-button">AIAPGET Prep</button>
+                    <button id="tab-mcq" onclick="switchTab('mcq')" class="tab-button">MCQ Generator</button>
+                    <button id="tab-pdf" onclick="switchTab('pdf')" class="tab-button">PDF Resources</button>
+                    <button id="tab-mock-test" onclick="switchTab('mock-test')" class="tab-button">Mock Test</button>
+                </nav>
+            </div>
+
+            <!-- Shloka Converter Content -->
+            <div id="shloka-converter" class="tab-content">
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="shloka-input" class="block text-sm font-medium text-slate-300 mb-2">Enter Shloka (Sanskrit or Hindi)</label>
+                        <textarea id="shloka-input" rows="8" class="w-full p-3 border border-slate-700 bg-black/20 text-slate-100 rounded-lg focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition"></textarea>
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Translate To:</label>
+                            <div id="shloka-lang-selector" class="flex flex-wrap gap-2">
+                                <button onclick="setShlokaLang(this, 'Hindi')" class="lang-btn-shloka bg-slate-700/50 text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition hover:bg-slate-600/50">Hindi</button>
+                                <button onclick="setShlokaLang(this, 'English')" class="lang-btn-shloka bg-slate-700/50 text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition hover:bg-slate-600/50">English</button>
+                                <button onclick="setShlokaLang(this, 'Punjabi')" class="lang-btn-shloka bg-slate-700/50 text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition hover:bg-slate-600/50">Punjabi</button>
+                            </div>
+                        </div>
+                         <button id="translate-btn" onclick="translateShloka()" class="mt-4 w-full interactive-btn text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center disabled:opacity-50 disabled:transform-none disabled:shadow-none" disabled>
+                            <svg id="translate-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Translate
+                        </button>
+                    </div>
+                    <div class="glass-container p-4 rounded-lg min-h-[200px] flex items-center justify-center">
+                        <div id="shloka-output" class="text-slate-300 w-full text-center">Translation will appear here...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doubt Solver Content -->
+            <div id="doubt-solver" class="tab-content hidden">
+                 <div class="h-[60vh] flex flex-col">
+                    <div id="chat-window" class="custom-scrollbar flex-1 overflow-y-auto p-4 glass-container rounded-lg mb-4"></div>
+                    <div id="image-preview-container" class="mb-2 p-2 border border-slate-700 bg-slate-800 rounded-lg hidden relative w-fit">
+                        <img id="image-preview" class="h-20 w-20 object-cover rounded-md" src="" alt="Image Preview">
+                        <button onclick="removeImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-sm font-bold transition hover:scale-110">&times;</button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="image-upload" class="cursor-pointer text-slate-400 hover:text-teal-300 p-2 rounded-full hover:bg-slate-700 transition"><svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.122 2.122l7.81-7.81" /></svg></label>
+                        <input type="file" id="image-upload" class="hidden" accept="image/*" onchange="handleImageUpload(event)">
+                        <input type="text" id="doubt-input" class="flex-1 p-3 border border-slate-700 bg-black/20 text-slate-100 rounded-lg focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition" placeholder="Ask about the image or just ask a question...">
+                        <button id="send-doubt-btn" onclick="askDoubt()" class="interactive-btn text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center disabled:opacity-50 disabled:transform-none disabled:shadow-none"><svg id="send-doubt-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Send</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AIAPGET Prep Content -->
+            <div id="aiapget-prep" class="tab-content hidden">
+                <div class="h-[70vh] custom-scrollbar overflow-y-auto pr-2">
+                    <div id="aiapget-resources" class="space-y-6">
+                        <!-- Resources will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- MCQ Generator Content -->
+            <div id="mcq-generator" class="tab-content hidden">
+                <div class="h-[70vh] flex flex-col">
+                    <div class="flex items-center gap-2 mb-4">
+                        <input type="text" id="mcq-topic-input" class="flex-1 p-3 border border-slate-700 bg-black/20 text-slate-100 rounded-lg focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition" placeholder="Enter a topic, e.g., 'Dosha Dhatu Mala Vigyan'">
+                        <button id="generate-mcq-btn" onclick="generateMCQs()" class="interactive-btn text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center disabled:opacity-50">
+                            <svg id="mcq-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Generate
+                        </button>
+                    </div>
+                    <div id="mcq-container" class="custom-scrollbar flex-1 overflow-y-auto p-4 glass-container rounded-lg space-y-6">
+                        <div class="text-center text-slate-400">Your generated questions will appear here.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PDF Resources Content -->
+            <div id="pdf-resources" class="tab-content hidden">
+                 <div class="h-[70vh] flex flex-col">
+                    <div class="flex items-center gap-2 mb-4">
+                        <input type="text" id="pdf-name-input" class="p-3 border border-slate-700 bg-black/20 text-slate-100 rounded-lg focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition" placeholder="Name (e.g., Charaka Notes)">
+                        <input type="url" id="pdf-link-input" class="flex-1 p-3 border border-slate-700 bg-black/20 text-slate-100 rounded-lg focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition" placeholder="Paste PDF link here...">
+                        <button onclick="addPDFLink()" class="interactive-btn text-white font-semibold py-3 px-4 rounded-lg">Add Link</button>
+                    </div>
+                    <div id="pdf-list" class="custom-scrollbar flex-1 overflow-y-auto p-4 glass-container rounded-lg space-y-3">
+                        <!-- PDF links will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- AIAPGET Mock Test Content -->
+            <div id="mock-test" class="tab-content hidden">
+                <div id="mock-test-start-screen" class="text-center">
+                    <h3 class="text-2xl font-bold gradient-text">AIAPGET Mock Test</h3>
+                    <p class="text-slate-400 mt-2">Test your knowledge with a 30-question mock test.</p>
+                    <button id="start-mock-test-btn" onclick="startMockTest()" class="mt-6 interactive-btn text-white font-bold py-3 px-6 rounded-lg text-lg">
+                        <svg id="mock-test-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Start New Mock Test
+                    </button>
+                </div>
+                <div id="mock-test-active-screen" class="hidden h-[70vh] flex flex-col">
+                    <div id="mock-test-timer" class="text-2xl font-bold text-teal-400 mb-2 hidden"></div>
+                    <p class="text-4xl font-bold text-white mt-4 hidden" id="final-score"></p>
+                    <div id="mock-test-questions" class="custom-scrollbar flex-1 overflow-y-auto p-4 glass-container rounded-lg space-y-6"></div>
+                    <div id="mock-test-controls" class="mt-4">
+                        <button id="next-mock-test-btn" onclick="generateNextMockQuestions()" class="w-full interactive-btn text-white font-semibold py-3 px-4 rounded-lg">Next</button>
+                        <button id="submit-mock-test-btn" onclick="submitMockTest()" class="w-full interactive-btn text-white font-semibold py-3 px-4 rounded-lg hidden">Submit Test</button>
+                    </div>
+                    <button id="back-to-start-btn" onclick="resetMockTestView()" class="mt-4 interactive-btn text-white font-bold py-3 px-6 rounded-lg text-lg hidden">Back to Start</button>
+                </div>
+                 <div id="mock-test-result-screen" class="hidden text-center">
+                    <h3 class="text-2xl font-bold gradient-text">Test Complete!</h3>
+                    <p class="text-4xl font-bold text-white mt-4" id="final-score"></p>
+                    <button onclick="resetMockTestView()" class="mt-6 interactive-btn text-white font-bold py-3 px-6 rounded-lg text-lg">Back to Tests</button>
+                </div>
+            </div>
+
+            <div id="error-modal" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+                <div class="bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-6 w-full max-w-md text-center">
+                    <h3 class="text-lg font-bold text-red-500">Error</h3>
+                    <p id="error-message" class="mt-2 text-slate-300"></p>
+                    <button onclick="document.getElementById('error-modal').classList.add('hidden')" class="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">Close</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- State Management ---
+        let selectedShlokaLang = null;
+        let selectedImage = { base64: null, mimeType: null };
+        let doubtChatHistory = [];
+        let pdfLinks = [];
+        let currentMockTest = [];
+
+        // --- Gemini API Call ---
+        async function callGemini(history, spinnerId) {
+            const spinner = document.getElementById(spinnerId);
+            if(spinner) spinner.classList.remove('hidden');
+
+            const apiKey = "AIzaSyAYtM_qPhIPRB_ooEiST98GydN7MG5dDCg"; // Canvas will provide the key
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: history,
+                generationConfig: { temperature: 0.5, topP: 1, topK: 1, maxOutputTokens: 8192, },
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+
+                 if (candidate && candidate.content && candidate.content.parts) {
+                    return candidate.content.parts[0].text;
+                } else {
+                    console.error("Unexpected API response structure or empty content:", result);
+                    const finishReason = candidate?.finishReason;
+                    if (finishReason === 'MAX_TOKENS') throw new Error("The AI's response was too long. Please try a more specific question.");
+                    throw new Error("Could not get a valid response from the AI.");
+                }
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                showErrorModal(error.message);
+                return null;
+            } finally {
+                 if(spinner) spinner.classList.add('hidden');
+            }
+        }
+
+        // --- UI Switching ---
+        function showErrorModal(message) {
+            document.getElementById('error-message').textContent = message;
+            document.getElementById('error-modal').classList.remove('hidden');
+        }
+
+        // --- Shloka Converter Logic ---
+        function setShlokaLang(button, lang) {
+            selectedShlokaLang = lang;
+            document.querySelectorAll('.lang-btn-shloka').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            document.getElementById('translate-btn').disabled = !document.getElementById('shloka-input').value.trim();
+        }
+        document.getElementById('shloka-input').addEventListener('input', function() {
+            document.getElementById('translate-btn').disabled = !(this.value.trim() && selectedShlokaLang);
+        });
+        async function translateShloka() {
+            const input = document.getElementById('shloka-input').value.trim();
+            if (!input || !selectedShlokaLang) return showErrorModal('Please enter a shloka and select a language.');
+            const outputDiv = document.getElementById('shloka-output');
+            outputDiv.textContent = 'Translating...';
+            document.getElementById('translate-btn').disabled = true;
+            const prompt = `Translate the following shloka into ${selectedShlokaLang}. Provide only the translation.\n\nShloka: "${input}"`;
+            const singleTurnHistory = [{ role: 'user', parts: [{ text: prompt }] }];
+            const text = await callGemini(singleTurnHistory, 'translate-spinner');
+            outputDiv.textContent = text || 'Translation failed.';
+            document.getElementById('translate-btn').disabled = false;
+        }
+
+        // --- Doubt Solver Logic ---
+        const doubtChatWindow = document.getElementById('chat-window');
+        const doubtInput = document.getElementById('doubt-input');
+        const sendDoubtBtn = document.getElementById('send-doubt-btn');
+        const imageUploadInput = document.getElementById('image-upload');
+        function initializeDoubtChat() {
+            const systemPrompt = `You are an expert in Ayurveda and BAMS. A student named Nishu is asking questions. Provide brief, to-the-point answers, ideally in bullet points or short paragraphs. Keep it concise. If there is an image but no text, describe the image and ask for a specific question about it.`;
+            const welcomeMessage = "Hello Nishu! I am your personal Ayurvedic study assistant. How can I help with your studies today?";
+            doubtChatHistory = [{ role: "user", parts: [{ text: systemPrompt }] }, { role: "model", parts: [{ text: welcomeMessage }] }];
+            doubtChatWindow.innerHTML = '';
+            appendMessage(welcomeMessage, 'ai', doubtChatWindow);
+        }
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file || !file.type.startsWith('image/')) return showErrorModal('Please upload a valid image file.');
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                selectedImage = { base64: e.target.result, mimeType: file.type };
+                document.getElementById('image-preview').src = e.target.result;
+                document.getElementById('image-preview-container').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+        function removeImage() {
+            selectedImage = { base64: null, mimeType: null };
+            document.getElementById('image-preview-container').classList.add('hidden');
+            imageUploadInput.value = '';
+        }
+        async function askDoubt() {
+            const question = doubtInput.value.trim();
+            if (!question && !selectedImage.base64) return showErrorModal('Please ask a question or upload an image.');
+            appendMessage(question, 'user', doubtChatWindow, false, selectedImage.base64);
+            let userParts = [];
+            if (question) userParts.push({ text: question });
+            if (selectedImage.base64) userParts.push({ inlineData: { mimeType: selectedImage.mimeType, data: selectedImage.base64.split(',')[1] } });
+            doubtChatHistory.push({ role: 'user', parts: userParts });
+            doubtInput.value = '';
+            removeImage();
+            sendDoubtBtn.disabled = true;
+            appendMessage('...', 'ai', doubtChatWindow, true);
+            const text = await callGemini(doubtChatHistory, 'send-doubt-spinner');
+            doubtChatWindow.removeChild(doubtChatWindow.lastChild);
+            if (text) {
+                appendMessage(text, 'ai', doubtChatWindow);
+                doubtChatHistory.push({ role: 'model', parts: [{ text: text }] });
+            } else {
+                appendMessage('Sorry, I encountered an error.', 'ai', doubtChatWindow);
+                doubtChatHistory.pop();
+            }
+            sendDoubtBtn.disabled = false;
+        }
+
+        // --- AIAPGET Prep Logic ---
+        const aiapgetTopics = [
+            {
+                title: "Charaka Samhita (including Chikitsa)",
+                youtube: [{ title: "YouTube Playlist", url: "https://www.youtube.com/playlist?list=PLrv8cCgbt9vdpI3n8pNAum_MTipcjD9xe" }],
+                notes: [{ title: "Scribd Notes", url: "https://www.scribd.com/document/635229445/AIPGET-NOTES-Charak" }],
+                tests: [{ title: "Practice MCQs", url: "https://drive.google.com/file/d/1AjDxIk417pey34omjTK8Qxa_GKpqKIuB/preview" }]
+            },
+            {
+                title: "Kayachikitsa",
+                youtube: [{ title: "YouTube Playlist", url: "https://www.youtube.com/playlist?list=PLrv8cCgbt9veJlFWPpdeNhCUL-J1HKAPa" }],
+                notes: [{ title: "Scribd Notes", url: "https://www.scribd.com/document/831296492/Kayachikitsa-1B-by-Dr-Ajeet-be2ca3d0-e736-473a-9fc6-5bcbd119bd9c" }],
+                tests: [{ title: "MCQ PDF", url: "https://coayurved.bharatividyapeeth.edu/media/pdf/MCQ_Kayachikitsa_170820.pdf" }]
+            },
+            {
+                title: "Sharir Rachana (Anatomy)",
+                youtube: [{ title: "YouTube Playlist", url: "https://www.youtube.com/playlist?list=PLG5Y87zr-hFuUia8_YWurLqwdqSoA_-Ko" }],
+                notes: [{ title: "Google Drive Notes", url: "https://drive.google.com/file/d/1wAC-AL3W8_d9p5Ksm-lIjUS00vIolGrY/preview" }],
+                tests: [{ title: "MCQ PDF", url: "https://drive.google.com/file/d/1Yv3Z9eztEI-tRrXaf1YKUFapUQXgUy47/preview" }]
+            },
+            {
+                title: "Sharir Kriya (Physiology)",
+                youtube: [{ title: "YouTube Playlist", url: "https://www.youtube.com/playlist?list=PLl1asgalm79fHQXS5xCErUBd-psRW1Jp2" }],
+                notes: [{ title: "Scribd Handwritten Notes", url: "https://www.scribd.com/document/505987015/Kriya-Sharir-Notes-Handwritten" }],
+                tests: [{ title: "MCQ PDF", url: "https://coayurved.bharatividyapeeth.edu/media/pdf/MCQ_Kriya_Sharir_170820.pdf" }]
+            },
+            {
+                title: "Dravyaguna Vigyan",
+                youtube: [
+                    { title: "Playlist 1", url: "https://www.youtube.com/playlist?list=PLSJJBSyRN0IqVs5LDMWnAI86P9RGEHDkY" },
+                    { title: "Playlist 2", url: "https://www.youtube.com/playlist?list=PLgjzETzql5rQf8e7DxLhmH3nbDNYb8R94" }
+                ],
+                notes: [
+                    { title: "Detailed Drug Properties", url: "https://www.teachmint.com/tfile/studymaterial/dravyagunabhavprakash/detaileddrugproperties/dgpdf/12e81213-027e-4ce2-9f88-ecd2cea1ed35" },
+                    { title: "Handwritten Notes", url: "https://drive.google.com/file/d/1dMvj1CjlMAnReguV6GL5ssT-4eYBzQDo/view" }
+                ],
+                tests: [{ title: "MCQ PDF", url: "https://coayurved.bharatividyapeeth.edu/media/pdf/MCQ_Dravyaguna_Vigyan_170820.pdf" }]
+            },
+            {
+                title: "Rasashastra & Bhaishajya Kalpana",
+                youtube: [{ title: "YouTube Playlist", url: "https://youtube.com/playlist?list=PLgjzETzql5rST6Zait0yg-2d-NRcYQxwY&feature=shared" }],
+                notes: [{ title: "Google Drive Notes", url: "https://drive.google.com/file/d/1KVWkvFH1s_NI-YqyOqFOf3Cu9X-460ZL/view" }],
+                tests: [{ title: "Practice MCQs", url: "https://drive.google.com/file/d/1pUcni7Z4KE0tD4X5-BKWwuumd44M1Eju/view" }]
+            },
+            {
+                title: "Roga Nidana & Vikriti Vigyan",
+                youtube: [{ title: "YouTube Playlist", url: "https://youtube.com/playlist?list=PLrv8cCgbt9vdvKKyGTmCiFtztQU4VVXHJ&feature=shared" }],
+                notes: [{ title: "Scribd Notes", url: "https://www.scribd.com/document/522199545/Roga-Nidan-Vikriti-Vigyan-II-by-Prof-Vidula-Gujjarwar" }],
+                tests: [{ title: "MCQ PDF", url: "https://coayurved.bharatividyapeeth.edu/media/pdf/MCQ_Rognidan_170820.pdf" }]
+            },
+            {
+                title: "Swasthavritta & Yoga",
+                youtube: [
+                    { title: "Playlist 1", url: "https://youtube.com/playlist?list=PLM7J9mqjCKmud2sr80BlLPUnczzlcoZbd&feature=shared" },
+                    { title: "Playlist 2", url: "https://youtube.com/playlist?list=PLqp3PVRdYNRtYXzNIuXG2N11hM-x-_hZw&feature=shared" }
+                ],
+                notes: [{ title: "Scribd Presentation", url: "https://www.scribd.com/document/798552199/A-Swasthvritta-Evam-Yoga-Dr-Priyanka-Vashisht-Presentation-WEB" }],
+                tests: [{ title: "MCQ PDF", url: "https://coayurved.bharatividyapeeth.edu/media/pdf/MCQ_Swasthavritta_170820.pdf" }]
+            },
+            {
+                title: "Prasuti Tantra & Stri Roga",
+                youtube: [{ title: "YouTube Playlist", url: "https://www.youtube.com/playlist?list=PLG5Y87zr-hFs0j_V9e8F_9dG8A1v-h_S0" }],
+                notes: [{ title: "EasyAyurveda Notes", url: "https://www.easyayurveda.com/prasuti-tantra-stri-roga-notes/" }],
+                tests: [{ title: "AyurPG Quiz", url: "https://www.ayurpg.com/prasuti-tantra-quiz" }]
+            },
+            {
+                title: "Shalya Tantra",
+                youtube: [{ title: "YouTube Playlist", url: "https://www.youtube.com/playlist?list=PLrv8cCgbt9veJlFWPpdeNhCUL-J1HKAPa" }],
+                notes: [{ title: "Ayurveda Siddhanta Notes", url: "https://www.ayurveda-siddhanta.com/shalya-tantra/" }],
+                tests: [{ title: "Practice MCQs", url: "https://www.ayurveda-exams.com/shalya-tantra-mcq/" }]
+            }
+        ];
+
+        function renderAIAPGETResources() {
+            const container = document.getElementById('aiapget-resources');
+            container.innerHTML = ''; // Clear existing content
+            aiapgetTopics.forEach(topic => {
+                const topicEl = document.createElement('div');
+                topicEl.className = 'aiapget-topic-card p-4 rounded-lg';
+                
+                let resourcesHTML = '';
+                
+                topic.youtube.forEach(link => {
+                    resourcesHTML += `<a href="${link.url}" target="_blank" class="resource-link"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9A2.25 2.25 0 0 0 13.5 5.25h-9A2.25 2.25 0 0 0 2.25 7.5v9A2.25 2.25 0 0 0 4.5 18.75Z" /></svg><span>${link.title}</span></a>`;
+                });
+                topic.notes.forEach(link => {
+                    resourcesHTML += `<a href="${link.url}" target="_blank" class="resource-link"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18c-2.305 0-4.408.867-6 2.292m0-14.25v14.25" /></svg><span>${link.title}</span></a>`;
+                });
+                topic.tests.forEach(link => {
+                     resourcesHTML += `<a href="${link.url}" target="_blank" class="resource-link"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" /></svg><span>${link.title}</span></a>`;
+                });
+
+                topicEl.innerHTML = `
+                    <h3 class="text-xl font-bold text-teal-300">${topic.title}</h3>
+                    <div class="mt-4">
+                        <h4 class="font-semibold text-slate-300">Key Resources:</h4>
+                        ${resourcesHTML}
+                    </div>
+                `;
+                container.appendChild(topicEl);
+            });
+        }
+        
+        // --- MCQ Generator Logic ---
+        const mcqContainer = document.getElementById('mcq-container');
+        const mcqTopicInput = document.getElementById('mcq-topic-input');
+        const generateMcqBtn = document.getElementById('generate-mcq-btn');
+
+        async function generateMCQs() {
+            const topic = mcqTopicInput.value.trim();
+            if (!topic) {
+                showErrorModal("Please enter a topic to generate questions.");
+                return;
+            }
+            
+            mcqContainer.innerHTML = '<div class="text-center text-slate-400">Generating questions...</div>';
+            generateMcqBtn.disabled = true;
+
+            const prompt = `Generate 10 multiple-choice questions (MCQs) for the AIAPGET exam on the topic "${topic}". The questions should be challenging and at a postgraduate level. For each question, provide 4 options (A, B, C, D) and clearly indicate the correct answer. Format the entire output as a single JSON array, where each object in the array represents a question and has the following keys: "question", "options" (an array of 4 strings), and "answer" (the correct option string).`;
+            
+            const singleTurnHistory = [{ role: 'user', parts: [{ text: prompt }] }];
+            const responseText = await callGemini(singleTurnHistory, 'mcq-spinner');
+            
+            if (responseText) {
+                try {
+                    const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+                    if (!jsonMatch) throw new Error("No valid JSON array found in the AI's response.");
+                    const jsonString = jsonMatch[0];
+                    const mcqs = JSON.parse(jsonString);
+                    displayMCQs(mcqs);
+                } catch (e) {
+                    console.error("Failed to parse JSON response:", e, "Original response:", responseText);
+                    showErrorModal("Sorry, I couldn't generate questions in the correct format. Please try a different topic.");
+                    mcqContainer.innerHTML = '<div class="text-center text-slate-400">Failed to generate questions.</div>';
+                }
+            } else {
+                mcqContainer.innerHTML = '<div class="text-center text-slate-400">Could not generate questions. Please try again.</div>';
+            }
+            
+            generateMcqBtn.disabled = false;
+        }
+
+        function displayMCQs(mcqs) {
+            mcqContainer.innerHTML = '';
+            mcqs.forEach((mcq, index) => {
+                const questionEl = document.createElement('div');
+                questionEl.className = 'p-4 rounded-lg border border-slate-700 bg-black/20';
+                
+                const optionsArray = Array.isArray(mcq.options) ? mcq.options : Object.values(mcq.options);
+                const optionsHTML = optionsArray.map(option => `
+                    <button class="mcq-option w-full text-left p-3 rounded-md mt-2" onclick="checkAnswer(this, '${mcq.answer}')">
+                        ${option}
+                    </button>
+                `).join('');
+
+                questionEl.innerHTML = `
+                    <p class="font-semibold text-slate-200">${index + 1}. ${mcq.question}</p>
+                    <div class="mt-2">${optionsHTML}</div>
+                `;
+                mcqContainer.appendChild(questionEl);
+            });
+        }
+
+        function checkAnswer(button, correctAnswer) {
+            const parent = button.parentElement;
+            const buttons = parent.querySelectorAll('.mcq-option');
+            
+            buttons.forEach(btn => btn.disabled = true);
+            
+            if (button.innerText.trim() === correctAnswer.trim()) {
+                button.classList.add('correct');
+            } else {
+                button.classList.add('incorrect');
+                buttons.forEach(btn => {
+                    if (btn.innerText.trim() === correctAnswer.trim()) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+        }
+
+        // --- PDF Resources Logic ---
+        const pdfListContainer = document.getElementById('pdf-list');
+        const pdfNameInput = document.getElementById('pdf-name-input');
+        const pdfLinkInput = document.getElementById('pdf-link-input');
+
+        function renderPDFs() {
+            pdfListContainer.innerHTML = '';
+            if (pdfLinks.length === 0) {
+                 pdfListContainer.innerHTML = '<div class="text-center text-slate-400">Your added PDF links will appear here.</div>';
+            }
+            pdfLinks.forEach((pdf, index) => {
+                const pdfEl = document.createElement('a');
+                pdfEl.href = pdf.url;
+                pdfEl.target = "_blank";
+                pdfEl.className = "resource-link justify-between";
+                pdfEl.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+                        <span>${pdf.name}</span>
+                    </div>
+                    <button onclick="event.preventDefault(); removePDFLink(${index})" class="text-slate-500 hover:text-red-500 p-1 rounded-full"><svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg></button>
+                `;
+                pdfListContainer.appendChild(pdfEl);
+            });
+        }
+
+        function addPDFLink() {
+            const name = pdfNameInput.value.trim();
+            const url = pdfLinkInput.value.trim();
+            if (!name || !url) {
+                showErrorModal("Please provide both a name and a valid link for the PDF.");
+                return;
+            }
+            pdfLinks.push({ name, url });
+            pdfNameInput.value = '';
+            pdfLinkInput.value = '';
+            renderPDFs();
+        }
+        
+        function removePDFLink(index) {
+            pdfLinks.splice(index, 1);
+            renderPDFs();
+        }
+
+
+        // --- Generic Message Append Logic ---
+        function appendMessage(text, sender, chatEl, isTyping = false, imageBase64 = null) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.className = `flex mb-4 ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            let messageContent;
+            if (isTyping) {
+                 messageContent = `<div class="bg-slate-700 text-slate-300 p-3 rounded-lg max-w-xs md:max-w-md"><div class="flex items-center"><span class="font-bold animate-pulse">.</span><span class="font-bold animate-pulse delay-75">.</span><span class="font-bold animate-pulse delay-150">.</span></div></div>`;
+            } else if (sender === 'ai') {
+                messageContent = `<div class="ai-message bg-slate-700 text-slate-200 p-3 rounded-lg max-w-xs md:max-w-md"><div>${text.replace(/\n/g, '<br>')}</div></div>`;
+            } else { // User message
+                let imageHtml = imageBase64 ? `<img src="${imageBase64}" class="rounded-lg mb-2 max-h-48">` : '';
+                messageContent = `<div class="bg-indigo-500 text-white p-3 rounded-lg max-w-xs md:max-w-md">${imageHtml}<p>${text}</p></div>`;
+            }
+            messageWrapper.innerHTML = messageContent;
+            chatEl.appendChild(messageWrapper);
+            chatEl.scrollTop = chatEl.scrollHeight;
+        }
+        
+        // --- Keypress Listeners ---
+        doubtInput.addEventListener('keypress', (e) => e.key === 'Enter' && askDoubt());
+        mcqTopicInput.addEventListener('keypress', (e) => e.key === 'Enter' && generateMCQs());
+
+        // --- Initial Setup ---
+        window.onload = () => {
+             switchTab('shloka');
+             initializeDoubtChat();
+             renderAIAPGETResources();
+             pdfLinks.push({ name: "AIPGET (Ayurveda) Subjects by Approximate Weightage", url: "https://drive.google.com/file/d/1eLzlrIH1-xATt-1KnOolGQtVB9ssuGI5/view?usp=sharing" });
+             renderPDFs();
+        };
+
+        // --- Mock Test Logic ---
+        const mockTestStartScreen = document.getElementById('mock-test-start-screen');
+        const mockTestActiveScreen = document.getElementById('mock-test-active-screen');
+        const mockTestResultScreen = document.getElementById('mock-test-result-screen');
+        const mockTestQuestionsContainer = document.getElementById('mock-test-questions');
+        const finalScoreEl = document.getElementById('final-score');
+        const mockTestControls = document.getElementById('mock-test-controls');
+
+        // Timer variables
+        let mockTestTimer = null;
+        let mockTestTimeLeft = 0;
+
+        // Add 'screen-transition' class to all .tab-content and major screen divs in the HTML
+        // (This can be done by default in the HTML or via JS on page load)
+        document.querySelectorAll('.tab-content, #mock-test-active-screen, #mock-test-result-screen, #mock-test-start-screen').forEach(el => {
+            el.classList.add('screen-transition');
+        });
+
+        // Helper function for transitions
+        function transitionScreens(currentEl, nextEl) {
+            if (!currentEl || !nextEl) return;
+            currentEl.classList.add('screen-fade-out');
+            // Prepare next screen for fade-in from blur
+            nextEl.classList.add('screen-transition', 'screen-pre-fade-in');
+            nextEl.classList.remove('hidden');
+            setTimeout(() => {
+                currentEl.classList.add('hidden');
+                currentEl.classList.remove('screen-fade-out', 'screen-transition');
+                // Trigger fade-in
+                nextEl.classList.remove('screen-pre-fade-in');
+                nextEl.classList.add('screen-fade-in');
+                setTimeout(() => {
+                    nextEl.classList.remove('screen-fade-in');
+                }, 300);
+            }, 300);
+        }
+
+        // Update switchTab to use the transition
+        function switchTab(tabName) {
+            const contentMap = {
+                shloka: 'shloka-converter',
+                doubt: 'doubt-solver',
+                aiapget: 'aiapget-prep',
+                mcq: 'mcq-generator',
+                pdf: 'pdf-resources',
+                'mock-test': 'mock-test'
+            };
+            const currentContent = document.querySelector('.tab-content:not(.hidden)');
+            const nextContent = document.getElementById(contentMap[tabName]);
+            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            if (currentContent && nextContent && currentContent !== nextContent) {
+                transitionScreens(currentContent, nextContent);
+            } else {
+                // fallback
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+                nextContent.classList.remove('hidden');
+            }
+        }
+
+        async function startMockTest() {
+            const startBtn = document.getElementById('start-mock-test-btn');
+            startBtn.disabled = true;
+            finalScoreEl.innerText = '';
+            finalScoreEl.classList.add('hidden');
+            document.getElementById('back-to-start-btn').classList.add('hidden');
+            // Reset and show timer
+            mockTestTimeLeft = 30 * 60; // 30 minutes in seconds
+            updateMockTestTimerDisplay();
+            document.getElementById('mock-test-timer').classList.remove('hidden');
+            if (mockTestTimer) clearInterval(mockTestTimer);
+            mockTestTimer = setInterval(() => {
+                mockTestTimeLeft--;
+                updateMockTestTimerDisplay();
+                if (mockTestTimeLeft <= 0) {
+                    clearInterval(mockTestTimer);
+                    mockTestTimer = null;
+                    submitMockTest();
+                }
+            }, 1000);
+            
+            const prompt = `Generate 15 multiple-choice questions for the first part of a mock AIAPGET exam, covering a diverse range of important subjects like Charaka Samhita, Kayachikitsa, Shalya Tantra, etc. The questions should be challenging and at a postgraduate level. For each question, provide 4 options and the correct answer. Format the entire output as a single JSON array, where each object has "question", "options" (an array of 4 strings), and "answer" (the correct option string).`;
+            const singleTurnHistory = [{ role: 'user', parts: [{ text: prompt }] }];
+            const responseText = await callGemini(singleTurnHistory, 'mock-test-spinner');
+
+            if (responseText) {
+                try {
+                    const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+                    if (!jsonMatch) throw new Error("No valid JSON array found in the AI's response.");
+                    currentMockTest = JSON.parse(jsonMatch[0]);
+
+                    if (!Array.isArray(currentMockTest) || currentMockTest.length === 0) {
+                        throw new Error("Generated content is not a valid test.");
+                    }
+
+                    displayMockTestQuestions(true); // Clear and display first batch
+                    transitionScreens(mockTestStartScreen, mockTestActiveScreen);
+                    document.getElementById('next-mock-test-btn').classList.remove('hidden');
+                    document.getElementById('submit-mock-test-btn').classList.add('hidden');
+                } catch (e) {
+                    console.error("Failed to parse mock test JSON:", e, "Original response:", responseText);
+                    showErrorModal("Failed to generate the mock test. Please try again.");
+                }
+            } else {
+                 showErrorModal("Failed to generate the mock test. The AI did not return a response.");
+            }
+            startBtn.disabled = false;
+        }
+        
+        async function generateNextMockQuestions() {
+            const nextBtn = document.getElementById('next-mock-test-btn');
+            nextBtn.disabled = true;
+            nextBtn.innerHTML = 'Generating...';
+
+            const prompt = `Generate another 15 multiple-choice questions for the second part of a mock AIAPGET exam, covering different topics than the first part if possible. The questions should be challenging and at a postgraduate level. For each question, provide 4 options and the correct answer. Format the entire output as a single JSON array, where each object has "question", "options" (an array of 4 strings), and "answer" (the correct option string).`;
+            const singleTurnHistory = [{ role: 'user', parts: [{ text: prompt }] }];
+            const responseText = await callGemini(singleTurnHistory, null); // No global spinner
+
+            if (responseText) {
+                 try {
+                    const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+                    if (!jsonMatch) throw new Error("No valid JSON array found in the AI's response.");
+                    const nextQuestions = JSON.parse(jsonMatch[0]);
+                    
+                    currentMockTest = currentMockTest.concat(nextQuestions);
+                    displayMockTestQuestions(false); // Append new questions
+                    nextBtn.classList.add('hidden');
+                    document.getElementById('submit-mock-test-btn').classList.remove('hidden');
+
+                } catch (e) {
+                     showErrorModal("Failed to generate the second part of the test. Please try again.");
+                }
+            } else {
+                showErrorModal("Failed to generate the second part of the test.");
+            }
+            nextBtn.disabled = false;
+            nextBtn.innerHTML = 'Next';
+        }
+
+
+        function displayMockTestQuestions(clearContainer) {
+            if (clearContainer) {
+                mockTestQuestionsContainer.innerHTML = '';
+            }
+            const startIndex = clearContainer ? 0 : 15;
+
+            for(let i = startIndex; i < currentMockTest.length; i++) {
+                const mcq = currentMockTest[i];
+                const questionEl = document.createElement('div');
+                questionEl.className = 'p-4 rounded-lg border border-slate-700 bg-black/20';
+                
+                const optionsArray = Array.isArray(mcq.options) ? mcq.options : Object.values(mcq.options);
+                const optionsHTML = optionsArray.map(option => `
+                    <label class="block mcq-option p-3 rounded-md mt-2 cursor-pointer">
+                        <input type="radio" name="question-${i}" value="${option}" class="mr-2">
+                        ${option}
+                    </label>
+                `).join('');
+
+                questionEl.innerHTML = `
+                    <p class="font-semibold text-slate-200">${i + 1}. ${mcq.question}</p>
+                    <div class="mt-2">${optionsHTML}</div>
+                `;
+                mockTestQuestionsContainer.appendChild(questionEl);
+            }
+        }
+
+        function submitMockTest() {
+            if (mockTestTimer) {
+                clearInterval(mockTestTimer);
+                mockTestTimer = null;
+            }
+            document.getElementById('mock-test-timer').classList.add('hidden');
+            let score = 0;
+            currentMockTest.forEach((mcq, index) => {
+                const selected = document.querySelector(`input[name="question-${index}"]:checked`);
+                const correctAnswer = mcq.answer.trim();
+                // Get all option labels for this question
+                const optionLabels = document.querySelectorAll(`input[name="question-${index}"]`);
+                optionLabels.forEach(input => {
+                    input.disabled = true; // Disable all options after submission
+                    const label = input.parentElement;
+                    const optionText = input.value.trim();
+                    // Remove any previous highlight classes
+                    label.classList.remove('correct', 'incorrect', 'selected');
+                });
+                if (selected) {
+                    const selectedLabel = selected.parentElement;
+                    selectedLabel.classList.add('selected'); // Always mark selected
+                    const selectedText = selected.value.trim();
+                    if (selectedText === correctAnswer) {
+                        selectedLabel.classList.add('correct');
+                        score++;
+                    } else {
+                        selectedLabel.classList.add('incorrect');
+                        // Also mark the correct answer
+                        optionLabels.forEach(input => {
+                            if (input.value.trim() === correctAnswer) {
+                                input.parentElement.classList.add('correct');
+                            }
+                        });
+                    }
+                } else {
+                    // Not attempted, just mark the correct answer
+                    optionLabels.forEach(input => {
+                        if (input.value.trim() === correctAnswer) {
+                            input.parentElement.classList.add('correct');
+                        }
+                    });
+                }
+            });
+            // Show the score above the questions with gradient and shadow
+            finalScoreEl.innerText = `Your Score: ${score} / ${currentMockTest.length}`;
+            finalScoreEl.classList.remove('hidden');
+            finalScoreEl.classList.add('gradient-text');
+            // Show the back to start button
+            document.getElementById('back-to-start-btn').classList.remove('hidden');
+        }
+
+        function resetMockTestView() {
+            if (mockTestTimer) {
+                clearInterval(mockTestTimer);
+                mockTestTimer = null;
+            }
+            document.getElementById('mock-test-timer').classList.add('hidden');
+            // Use transition for mock test screens
+            transitionScreens(mockTestActiveScreen, mockTestStartScreen);
+            mockTestQuestionsContainer.innerHTML = '';
+            finalScoreEl.innerText = '';
+            finalScoreEl.classList.add('hidden');
+            finalScoreEl.classList.remove('gradient-text');
+            document.getElementById('back-to-start-btn').classList.add('hidden');
+            currentMockTest = [];
+        }
+
+        // Timer display update function
+        function updateMockTestTimerDisplay() {
+            const timerDiv = document.getElementById('mock-test-timer');
+            if (!timerDiv) return;
+            if (mockTestTimeLeft <= 0) {
+                timerDiv.textContent = 'Time\'s up! Submitting...';
+            } else {
+                const min = Math.floor(mockTestTimeLeft / 60).toString().padStart(2, '0');
+                const sec = (mockTestTimeLeft % 60).toString().padStart(2, '0');
+                timerDiv.textContent = `Time Left: ${min}:${sec}`;
+            }
+        }
+
+    </script>
+</body>
+</html>
